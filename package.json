@@ -3,13 +3,34 @@
   "version": "1.0.0",
   "description": "MCP server for open jobs read every hour from employers' own career pages (Jobs Every Hour's free API, no key)",
   "type": "module",
-  "bin": { "jobseveryhour-mcp": "index.js" },
+  "bin": {
+    "jobseveryhour-mcp": "index.js"
+  },
   "main": "index.js",
-  "files": ["index.js", "README.md", "LICENSE"],
-  "engines": { "node": ">=18" },
-  "keywords": ["mcp", "model-context-protocol", "jobs", "job-search", "careers", "remote-jobs", "salaries"],
+  "files": [
+    "Dockerfile",
+    "LICENSE",
+    "README.md",
+    "glama.json",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "jobs",
+    "job-search",
+    "careers",
+    "remote-jobs",
+    "salaries"
+  ],
   "homepage": "https://jobseveryhour.com/api/",
-  "repository": { "type": "git", "url": "https://github.com/Simba0315/jobseveryhour-mcp.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Simba0315/jobseveryhour-mcp.git"
+  },
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
