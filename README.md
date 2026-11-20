@@ -20,7 +20,19 @@ It reads the site's [free JSON API](https://jobseveryhour.com/api/), which needs
 
 Each tool returns up to 30 of the newest jobs with title, employer, place, remote flag, advertised pay, posting date and link.
 
-## Install
+## Fastest: the hosted server (no install)
+
+Jobs Every Hour runs the same data as a remote MCP server over Streamable HTTP, with a word search over every open job:
+
+```
+https://jobseveryhour.com/mcp
+```
+
+Tools there: `search_jobs` (words matched in title, company, skills, place and text, best match first, optional remote filter) and
+`get_job` (one posting in full). In Claude, add it under Settings → Connectors → Add custom connector; in Cursor or VS Code, add
+`{"url": "https://jobseveryhour.com/mcp"}` as a server. No key, no account.
+
+## Install the local server
 
 Needs Node.js 18 or newer.
 
