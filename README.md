@@ -1,5 +1,8 @@
 # Jobs Every Hour MCP server
 
+[![Simba0315/jobseveryhour-mcp MCP server](https://glama.ai/mcp/servers/Simba0315/jobseveryhour-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Simba0315/jobseveryhour-mcp)
+[![Jobs Every Hour MCP connector](https://glama.ai/mcp/connectors/com.jobseveryhour/jobs/badges/score.svg)](https://glama.ai/mcp/connectors/com.jobseveryhour/jobs)
+
 An [MCP](https://modelcontextprotocol.io) server that lets Claude, ChatGPT, Cursor and other AI assistants search open jobs from
 [Jobs Every Hour](https://jobseveryhour.com/): jobs read every hour from employers' own career pages (Greenhouse, Lever, Ashby,
 Workday, iCIMS and other hiring systems). Closed jobs are removed, and every job links to a page whose Apply button goes to the
