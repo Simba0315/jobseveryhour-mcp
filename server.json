@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.jobseveryhour/jobs",
+  "title": "Jobs Every Hour",
+  "description": "Jobs in every field, mostly in the US, from employers' own career pages, rechecked around the clock",
+  "version": "1.0.2",
+  "websiteUrl": "https://jobseveryhour.com/api/",
+  "repository": {
+    "url": "https://github.com/Simba0315/jobseveryhour-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://jobseveryhour.com/mcp"
+    }
+  ]
+}

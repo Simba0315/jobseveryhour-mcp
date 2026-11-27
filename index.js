@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// MCP server for Jobs Every Hour: open jobs read every hour from employers' own career pages.
-// It reads the site's free JSON API (https://jobseveryhour.com/api/), which needs no key. Each feed changes hourly,
-// so answers are cached for an hour.
+// MCP server for Jobs Every Hour: open jobs in every field, mostly in the United States, read from employers' own career pages
+// and rechecked around the clock. It reads the site's free JSON API (https://jobseveryhour.com/api/), which needs no key.
+// The feeds change several times a day, so answers are cached for an hour.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -13,7 +13,7 @@ const cache = new Map();
 async function getJson(path) {
   const hit = cache.get(path);
   if (hit && Date.now() - hit.at < HOUR) return hit.data;
-  const res = await fetch(API + path, { headers: { "user-agent": "jobseveryhour-mcp/1.0" } });
+  const res = await fetch(API + path, { headers: { "user-agent": "jobseveryhour-mcp/1.0.2" } });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Jobs Every Hour API answered ${res.status} for ${path}`);
   const data = await res.json();
@@ -56,43 +56,60 @@ async function byKind(kind, value, limit, remoteOnly) {
 const text = (t) => ({ content: [{ type: "text", text: t }] });
 const limit = z.number().int().min(1).max(30).default(10).describe("How many of the newest jobs to show, 1 to 30");
 const remoteOnly = z.boolean().default(false).describe("Only remote jobs");
+// Every tool only reads public job postings: nothing is changed or deleted, and the jobs are those of thousands of employers.
+const annotations = { readOnlyHint: true, destructiveHint: false, openWorldHint: true };
 
-const server = new McpServer({ name: "jobseveryhour", version: "1.0.0" });
+const COVERAGE = "open jobs in every field (healthcare, engineering, sales, skilled trades, retail, office, education, government and more), "
+  + "mostly in the United States, plus remote jobs and jobs in many other countries";
+const server = new McpServer({ name: "jobseveryhour", version: "1.0.2" }, {
+  instructions: `Jobs Every Hour: ${COVERAGE}. Every job is read from the employer's own career page (US federal jobs from USAJOBS), `
+    + "and the lists are rechecked around the clock, so closed jobs drop out. latest_jobs gives the newest; jobs_by_skill, jobs_by_category, "
+    + "jobs_by_location and jobs_by_company narrow them; list_feeds says what exists. Each job shows the place, the pay when the posting "
+    + "states it and the posting date. Always give the person the job's link; people apply on the employer's own site.",
+});
 
 server.registerTool("latest_jobs", {
   title: "Newest jobs",
-  description: "The newest open jobs on Jobs Every Hour, read every hour from employers' own career pages (Greenhouse, Lever, Ashby, Workday, iCIMS and more).",
+  description: `The newest ${COVERAGE} on Jobs Every Hour, read from employers' own career pages (Workday, Greenhouse, iCIMS, Lever, Ashby and more) `
+    + "and rechecked around the clock. Each job has the place, the pay when stated, the posting date and its link.",
   inputSchema: { limit, remote_only: remoteOnly },
+  annotations,
 }, async ({ limit, remote_only }) => text(summary(await getJson(remote_only ? "remote.json" : "latest.json"), limit, false)));
 
 server.registerTool("jobs_by_skill", {
   title: "Jobs by skill",
-  description: "Open jobs that ask for a skill, such as Python, React, SQL, Kubernetes or Salesforce.",
-  inputSchema: { skill: z.string().describe("A skill, e.g. Python"), limit, remote_only: remoteOnly },
+  description: "Open jobs that ask for a skill, in any field: Python, SQL, Excel, Salesforce, CPR, forklift, patient care, customer service and more.",
+  inputSchema: { skill: z.string().describe("A skill, e.g. Python or CPR"), limit, remote_only: remoteOnly },
+  annotations,
 }, async ({ skill, limit, remote_only }) => text(await byKind("skills", skill, limit, remote_only)));
 
 server.registerTool("jobs_by_category", {
   title: "Jobs by category",
-  description: "Open jobs in a field of work, such as engineering, design, sales, marketing, healthcare or operations.",
-  inputSchema: { category: z.string().describe("A field of work, e.g. engineering"), limit, remote_only: remoteOnly },
+  description: "Open jobs in a field of work: healthcare, engineering, sales, manufacturing and trades, retail and hospitality, education, "
+    + "operations, finance, supply chain, customer service, marketing, design, legal and more.",
+  inputSchema: { category: z.string().describe("A field of work, e.g. healthcare"), limit, remote_only: remoteOnly },
+  annotations,
 }, async ({ category, limit, remote_only }) => text(await byKind("categories", category, limit, remote_only)));
 
 server.registerTool("jobs_by_location", {
   title: "Jobs by location",
-  description: "Open jobs in a country, region or large city, such as united-states, europe, london, new-york or remote.",
-  inputSchema: { location: z.string().describe("A country, region or city, e.g. Germany"), limit, remote_only: remoteOnly },
+  description: "Open jobs in a country, US state, region or large city, such as united-states, texas, california, new-york, chicago, canada, london or europe.",
+  inputSchema: { location: z.string().describe("A country, US state, region or city, e.g. Texas"), limit, remote_only: remoteOnly },
+  annotations,
 }, async ({ location, limit, remote_only }) => text(await byKind("locations", location, limit, remote_only)));
 
 server.registerTool("jobs_by_company", {
   title: "Jobs at a company",
   description: "Open jobs at one employer, read from its own career page.",
   inputSchema: { company: z.string().describe("A company name, e.g. Stripe"), limit, remote_only: remoteOnly },
+  annotations,
 }, async ({ company, limit, remote_only }) => text(await byKind("companies", company, limit, remote_only)));
 
 server.registerTool("list_feeds", {
   title: "What can be searched",
   description: "The skills, categories, locations or companies that have a feed, with the number of open jobs in each.",
   inputSchema: { kind: z.enum(["skills", "categories", "locations", "companies"]), contains: z.string().optional().describe("Only names containing this text") },
+  annotations,
 }, async ({ kind, contains }) => {
   let all = await feeds(kind);
   if (contains) all = all.filter((f) => f.name.toLowerCase().includes(contains.toLowerCase()) || f.slug.includes(slugify(contains)));

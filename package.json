@@ -1,7 +1,7 @@
 {
   "name": "jobseveryhour-mcp",
-  "version": "1.0.0",
-  "description": "MCP server for open jobs read every hour from employers' own career pages (Jobs Every Hour's free API, no key)",
+  "version": "1.0.2",
+  "description": "MCP server for open jobs in every field, mostly in the US, read from employers' own career pages and rechecked around the clock (Jobs Every Hour's free API, no key)",
   "type": "module",
   "bin": {
     "jobseveryhour-mcp": "index.js"
@@ -12,7 +12,8 @@
     "LICENSE",
     "README.md",
     "glama.json",
-    "index.js"
+    "index.js",
+    "server.json"
   ],
   "engines": {
     "node": ">=18"
@@ -24,6 +25,7 @@
     "job-search",
     "careers",
     "remote-jobs",
+    "entry-level-jobs",
     "salaries"
   ],
   "homepage": "https://jobseveryhour.com/api/",
